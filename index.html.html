@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>إمبراطورية أفيونة V22 | الإصدار التشغيلي الكامل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.js"></script>
+    <style>
+        :root { --p: #6c5ce7; --s: #00d2d3; --bg: #050505; --card: rgba(255,255,255,0.07); --txt: #ffffff; }
+        .theme-light { --p: #4834d4; --s: #22a6b3; --bg: #f5f6fa; --card: #ffffff; --txt: #2f3640; }
+        .theme-pink { --p: #ef5777; --s: #f53b57; --bg: #fff5f6; --card: #ffffff; --txt: #4b4b4b; }
+        body { margin: 0; font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--txt); transition: 0.3s; overflow-x: hidden; }
+        
+        /* Login */
+        #login-overlay { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .login-box { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--p); width: 320px; text-align: center; }
+        .login-box input { display: block; width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #222; color: #fff; text-align: center; }
+        
+        #app { display: none; padding: 20px; }
+        .nav { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 15px; border-radius: 15px; border-bottom: 3px solid var(--p); }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
+        .card { background: var(--card); padding: 20px; border-radius: 20px; text-align: center; cursor: pointer; border: 1px solid transparent; transition: 0.3s; }
+        .card:hover { border-color: var(--p); transform: translateY(-5px); }
+
+        /* Views */
+        .full-view { position: fixed; inset: 0; background: var(--bg); z-index: 9000; display: none; flex-direction: column; padding: 20px; overflow-y: auto; }
+        .lesson-btn { background: var(--card); padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; justify-content: space-between; cursor: pointer; border-right: 5px solid var(--p); }
+        
+        /* Video Area */
+        #video-view { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9500; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .v-container { width: 90%; max-width: 800px; aspect-ratio: 16/9; background: #000; border: 2px solid var(--p); }
+
+        /* Quiz */
+        #quiz-view { position: fixed; inset: 0; background: #000; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .quiz-box { background: #111; padding: 30px; border-radius: 20px; width: 100%; max-width: 500px; border: 2px solid var(--s); }
+        .opt { display: block; width: 100%; padding: 12px; margin: 8px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; cursor: pointer; text-align: right; }
+        .opt:hover { background: var(--p); }
+
+        /* Calc */
+        #calc { position: fixed; top: 100px; left: 20px; width: 280px; background: #111; border: 2px solid var(--p); border-radius: 15px; display: none; z-index: 9999; cursor: move; }
+        .calc-display { background: #000; padding: 20px; text-align: right; font-size: 24px; color: var(--s); }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; }
+        .c-btn { padding: 15px; background: #222; border: none; color: #fff; cursor: pointer; border-radius: 5px; }
+
+        /* Chat */
+        #bot-trigger { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        #chat-window { position: fixed; bottom: 90px; right: 20px; width: 320px; height: 450px; background: var(--card); border: 1px solid var(--p); border-radius: 20px; display: none; flex-direction: column; z-index: 1000; backdrop-filter: blur(10px); }
+        .chat-logs { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    </style>
+</head>
+<body class="">
+
+<div id="login-overlay">
+    <div class="login-box">
+        <h1 style="color:var(--p)">إمبراطورية أفيونة</h1>
+        <input type="text" id="username" placeholder="اسم الطالب">
+        <input type="password" id="password" placeholder="كلمة السر">
+        <button onclick="login()" style="width:100%; padding:12px; background:var(--p); color:#fff; border:none; border-radius:8px; cursor:pointer;">دخول</button>
+    </div>
+</div>
+
+<div id="app">
+    <nav class="nav">
+        <h3 id="user-display"></h3>
+        <div style="display:flex; gap:10px;">
+            <select onchange="document.body.className = this.value==='dark'?'':'theme-'+this.value" style="padding:5px; border-radius:5px;">
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+                <option value="pink">Pink</option>
+            </select>
+            <button onclick="document.getElementById('calc').style.display='block'" style="background:var(--p); color:#fff; border:none; padding:8px 15px; border-radius:8px; cursor:pointer;">الآلة</button>
+            <button onclick="startGame()" style="background:gold; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:bold;">اللعبة</button>
+        </div>
+    </nav>
+
+    <div class="grid" id="subjects-grid">
+        <div class="card" onclick="openSubject('اللغة العربية')"><h2>اللغة العربية</h2><p>10 دروس</p></div>
+        <div class="card" onclick="openSubject('العلوم')"><h2>العلوم</h2><p>10 دروس</p></div>
+        <div class="card" onclick="openSubject('الرياضيات')"><h2>الرياضيات</h2><p>10 دروس</p></div>
+        <div class="card" onclick="openSubject('اللغة الإنجليزية')"><h2>اللغة الإنجليزية</h2><p>10 دروس</p></div>
+    </div>
+
+    <footer style="text-align:center; margin-top:40px;">
+        <p>جميع الحقوق محفوظة لـ أفيونة &copy; 2026</p>
+    </footer>
+</div>
+
+<div id="subject-view" class="full-view">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h1 id="sub-title" style="color:var(--s)"></h1>
+        <button onclick="this.parentElement.parentElement.style.display='none'" style="background:red; color:#fff; border:none; padding:10px 20px; border-radius:10px;">إغلاق</button>
+    </div>
+    <div id="lessons-list"></div>
+</div>
+
+<div id="video-view">
+    <button onclick="document.getElementById('video-view').style.display='none'; document.getElementById('player').src='';" style="background:red; color:#fff; border:none; padding:10px 20px; margin-bottom:10px; cursor:pointer;">X إغلاق الفيديو</button>
+    <div class="v-container"><iframe id="player" width="100%" height="100%" src="" frameborder="0" allowfullscreen></iframe></div>
+    <button onclick="startQuiz()" style="background:var(--s); padding:15px 40px; border:none; border-radius:10px; margin-top:20px; font-weight:bold; cursor:pointer;">ابدأ اختبار الـ 10 أسئلة</button>
+</div>
+
+<div id="quiz-view">
+    <div class="quiz-box">
+        <h3 id="q-text"></h3>
+        <div id="q-opts"></div>
+        <p id="q-stat" style="text-align:center; color:gray;"></p>
+    </div>
+</div>
+
+<div id="game-view" class="full-view" style="align-items:center; justify-content:center;">
+    <div style="background:#111; padding:40px; border-radius:20px; border:2px solid gold; text-align:center;">
+        <h2>لعبة إمبراطور الأرقام</h2>
+        <p>ما هو ناتج: <span id="game-task" style="color:gold; font-size:24px;"></span></p>
+        <input type="number" id="game-input" style="padding:10px; width:100px; text-align:center;">
+        <button onclick="checkGame()" style="padding:10px 20px; background:gold; border:none; margin-top:10px;">تحقق</button>
+        <button onclick="document.getElementById('game-view').style.display='none'" style="display:block; margin:20px auto; color:red; background:none; border:none;">خروج</button>
+    </div>
+</div>
+
+<div id="calc">
+    <div style="padding:10px; background:var(--p); display:flex; justify-content:space-between;"><span>آلة أفيونة</span><span onclick="this.parentElement.parentElement.style.display='none'" style="cursor:pointer">X</span></div>
+    <div class="calc-display" id="c-scr">0</div>
+    <div class="calc-grid" id="c-grid"></div>
+</div>
+
+<div id="bot-trigger" onclick="toggleChat()"><i class="fa-solid fa-robot fa-2xl" style="color:#fff"></i></div>
+<div id="chat-window">
+    <div style="padding:15px; background:var(--p); color:#fff;"><b>مساعد أفيونة V22</b></div>
+    <div id="chat-logs" class="chat-logs"></div>
+    <div style="padding:10px; display:flex; gap:5px;">
+        <input type="text" id="ai-in" placeholder="اسألني أي حاجة..." style="flex:1; border-radius:5px; border:1px solid #ccc; padding:5px;">
+        <button onclick="askAI()" style="background:var(--p); color:#fff; border:none; padding:10px; border-radius:5px;">إرسال</button>
+    </div>
+</div>
+
+<script>
+    let currentStudent = "";
+    let quizIdx = 0;
+    let quizScore = 0;
+    let gameAns = 0;
+
+    // Login
+    function login() {
+        currentStudent = document.getElementById('username').value;
+        if(currentStudent && document.getElementById('password').value === "123456") {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            document.getElementById('user-display').innerText = "الإمبراطور: " + currentStudent;
+            addMsg("ai", `أهلاً بك يا ${currentStudent}! أنا جاهز لمساعدتك في دروسك اليوم.`);
+        } else alert("الباسورد 123456");
+    }
+
+    // Subjects & Lessons
+    const lessons = {
+        "اللغة العربية": ["المنادى", "قصة أثر", "سميرة موسى", "البدل", "عباد الرحمن", "طموح جارية", "كن جميلاً", "المدح والذم", "الممنوع من الصرف", "آيات العلم"],
+        "العلوم": ["الحركة في اتجاه واحد", "السرعة المنتظمة", "المرايا", "العدسات", "الكون", "الانقسام الميوزي", "التكاثر", "العدسات المحدبة", "السرعة المتجهة", "التمثيل البياني"],
+        "الرياضيات": ["الضرب الديكارتي", "العلاقات", "الدوال", "النسبة", "التناسب", "حساب المثلثات", "ميل المستقيم", "البعد بين نقطتين", "المنتصف", "معادلة المستقيم"],
+        "اللغة الإنجليزية": ["Unit 1", "Unit 2", "Unit 3", "Unit 4", "Unit 5", "Unit 6", "Grammar 1", "Grammar 2", "Vocabulary", "Skills"]
+    };
+
+    function openSubject(s) {
+        document.getElementById('sub-title').innerText = s;
+        const list = document.getElementById('lessons-list');
+        list.innerHTML = "";
+        lessons[s].forEach((L, i) => {
+            list.innerHTML += `<div class="lesson-btn" onclick="playLesson('${L}')"><span>${i+1}. ${L}</span> <i class="fa-solid fa-play"></i></div>`;
+        });
+        document.getElementById('subject-view').style.display = 'flex';
+    }
+
+    function playLesson(L) {
+        document.getElementById('player').src = "https://www.youtube.com/embed/dQw4w9WgXcQ"; // مثال
+        document.getElementById('video-view').style.display = 'flex';
+    }
+
+    // Quiz System
+    function startQuiz() {
+        quizIdx = 0; quizScore = 0;
+        document.getElementById('quiz-view').style.display = 'flex';
+        showQuestion();
+    }
+
+    function showQuestion() {
+        if(quizIdx >= 10) {
+            alert(`انتهى الاختبار! نتيجتك: ${quizScore}/10`);
+            document.getElementById('quiz-view').style.display = 'none';
+            return;
+        }
+        document.getElementById('q-text').innerText = `سؤال رقم ${quizIdx+1}: ما هو اختيارك الصحيح؟`;
+        const opts = document.getElementById('q-opts');
+        opts.innerHTML = "";
+        ["إجابة صحيحة", "إجابة خاطئة", "إجابة أخرى"].forEach((txt, i) => {
+            opts.innerHTML += `<button class="opt" onclick="answer(${i})">${txt}</button>`;
+        });
+        document.getElementById('q-stat').innerText = `السؤال ${quizIdx+1} من 10`;
+    }
+
+    function answer(i) { if(i===0) quizScore++; quizIdx++; showQuestion(); }
+
+    // Game
+    function startGame() {
+        document.getElementById('game-view').style.display = 'flex';
+        let a = Math.floor(Math.random()*10), b = Math.floor(Math.random()*10);
+        gameAns = a * b;
+        document.getElementById('game-task').innerText = `${a} × ${b}`;
+    }
+    function checkGame() {
+        if(parseInt(document.getElementById('game-input').value) === gameAns) {
+            alert("إجابة إمبراطورية!"); startGame();
+        } else alert("حاول تاني يا بطل");
+        document.getElementById('game-input').value = "";
+    }
+
+    // Calc
+    const cBtns = ['7','8','9','/','4','5','6','*','1','2','3','-','0','C','=','+','sin','cos','sqrt'];
+    cBtns.forEach(b => {
+        const btn = document.createElement('button'); btn.className='c-btn'; btn.innerText=b;
+        btn.onclick = () => {
+            const s = document.getElementById('c-scr');
+            if(b==='=') s.innerText = eval(s.innerText);
+            else if(b==='C') s.innerText = '0';
+            else s.innerText = s.innerText==='0'?b:s.innerText+b;
+        }
+        document.getElementById('c-grid').appendChild(btn);
+    });
+
+    // AI Chat
+    function toggleChat() { 
+        const w = document.getElementById('chat-window');
+        w.style.display = w.style.display==='none'?'flex':'none';
+    }
+    function addMsg(cls, txt) {
+        const l = document.getElementById('chat-logs');
+        l.innerHTML += `<div style="background:${cls==='ai'?'#eee':'var(--p)'}; color:${cls==='ai'?'#000':'#fff'}; padding:10px; border-radius:10px; align-self:${cls==='ai'?'flex-start':'flex-end'}; max-width:80%;">${txt}</div>`;
+        l.scrollTop = l.scrollHeight;
+    }
+    async function askAI() {
+        const inp = document.getElementById('ai-in');
+        const txt = inp.value; if(!txt) return;
+        addMsg("user", txt); inp.value = "";
+
+        if(txt.includes("مشكلة")) {
+            addMsg("ai", `ولا يهمك يا ${currentStudent}! كلم الإدارة (أفيونة) على واتساب: 01274764434 وهيردوا عليك فوراً.`);
+            return;
+        }
+
+        try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyAVTQtsboUBkiD4JRMY8019ReFzKndDkXU`, {
+                method: "POST", headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ contents: [{ parts: [{ text: `أنت مساعد تعليمي لثالثة إعدادي. الطالب اسمه ${currentStudent}. أجب على: ${txt}` }] }] })
+            });
+            const d = await res.json();
+            addMsg("ai", d.candidates[0].content.parts[0].text);
+        } catch { addMsg("ai", `أنا معاك يا ${currentStudent}، اسألني في المنهج وهرد عليك.`); }
+    }
+</script>
+</body>
+</html>
